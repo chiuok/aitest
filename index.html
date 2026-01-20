@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雞排訂購紀錄系統</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #333; text-align: center; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #ff9800; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #e68a00; }
+        hr { margin: 2rem 0; border: 0; border-top: 1px solid #eee; }
+        .record-list { list-style: none; padding: 0; }
+        .record-item { background: #fff8e1; padding: 10px; border-left: 5px solid #ffc107; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .time { font-size: 0.8rem; color: #888; }
+        .clear-btn { background: #ff5252; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🍗 雞排訂購系統</h2>
+    
+    <div class="form-group">
+        <label for="nickname">使用者的暱稱</label>
+        <input type="text" id="nickname" placeholder="請輸入名字...">
+    </div>
+
+    <div class="form-group">
+        <label for="chickenType">選擇雞排種類</label>
+        <select id="chickenType">
+            <option value="酥皮雞排">🔥 酥皮雞排 (傳統顆粒粉)</option>
+            <option value="脆皮雞排">✨ 脆皮雞排 (漿粉外皮)</option>
+        </select>
+    </div>
+
+    <button onclick="saveRecord()">送出訂單</button>
+
+    <hr>
+
+    <h3>📋 所有訂購紀錄</h3>
+    <ul id="recordList" class="record-list"></ul>
+    <button class="clear-btn" onclick="clearRecords()">清空所有紀錄</button>
+</div>
+
+<script>
+    // 網頁載入時自動讀取紀錄
+    window.onload = function() {
+        displayRecords();
+    };
+
+    // 儲存紀錄的功能
+    function saveRecord() {
+        const name = document.getElementById('nickname').value;
+        const type = document.getElementById('chickenType').value;
+        const time = new Date().toLocaleString();
+
+        if (name.trim() === "") {
+            alert("請輸入暱稱喔！");
+            return;
+        }
+
+        const record = { name, type, time };
+
+        // 從 localStorage 取得現有資料，若無則建立空陣列
+        let records = JSON.parse(localStorage.getItem('chickenOrders')) || [];
+        records.push(record);
+
+        // 存回 localStorage
+        localStorage.setItem('chickenOrders', JSON.stringify(records));
+
+        // 清空輸入框並重新渲染列表
+        document.getElementById('nickname').value = "";
+        displayRecords();
+    }
+
+    // 顯示紀錄的功能
+    function displayRecords() {
+        const listElement = document.getElementById('recordList');
+        const records = JSON.parse(localStorage.getItem('chickenOrders')) || [];
+        
+        listElement.innerHTML = ""; // 先清空舊內容
+
+        records.reverse().forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'record-item';
+            li.innerHTML = `
+                <div>
+                    <strong>${item.name}</strong> 點了 <span>${item.type}</span>
+                    <div class="time">${item.time}</div>
+                </div>
+            `;
+            listElement.appendChild(li);
+        });
+    }
+
+    // 清空紀錄的功能
+    function clearRecords() {
+        if (confirm("確定要刪除所有訂購紀錄嗎？")) {
+            localStorage.removeItem('chickenOrders');
+            displayRecords();
+        }
+    }
+</script>
+
+</body>
+</html>
